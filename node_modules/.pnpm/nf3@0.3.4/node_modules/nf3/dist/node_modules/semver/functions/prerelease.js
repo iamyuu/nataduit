@@ -1,0 +1,1 @@
+"use strict";const parse=require(`./parse`),prerelease=(t,n)=>{let r=parse(t,n);return r&&r.prerelease.length?r.prerelease:null};module.exports=prerelease;

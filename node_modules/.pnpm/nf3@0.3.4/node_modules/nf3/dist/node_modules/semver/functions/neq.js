@@ -1,0 +1,1 @@
+"use strict";const compare=require(`./compare`),neq=(t,n,r)=>compare(t,n,r)!==0;module.exports=neq;

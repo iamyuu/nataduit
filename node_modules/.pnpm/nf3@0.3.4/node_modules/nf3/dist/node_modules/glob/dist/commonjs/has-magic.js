@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,`__esModule`,{value:!0}),exports.hasMagic=void 0;const minimatch_1=require(`minimatch`),hasMagic=(t,n={})=>{Array.isArray(t)||(t=[t]);for(let r of t)if(new minimatch_1.Minimatch(r,n).hasMagic())return!0;return!1};exports.hasMagic=hasMagic;

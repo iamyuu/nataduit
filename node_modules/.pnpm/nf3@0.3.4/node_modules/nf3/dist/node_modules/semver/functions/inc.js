@@ -1,0 +1,1 @@
+"use strict";const SemVer=require(`../classes/semver`),inc=(t,n,r,i,a)=>{typeof r==`string`&&(a=i,i=r,r=void 0);try{return new SemVer(t instanceof SemVer?t.version:t,r).inc(n,i,a).version}catch{return null}};module.exports=inc;

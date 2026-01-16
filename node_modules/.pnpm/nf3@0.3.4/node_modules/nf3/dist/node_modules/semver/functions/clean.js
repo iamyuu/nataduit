@@ -1,0 +1,1 @@
+"use strict";const parse=require(`./parse`),clean=(t,n)=>{let r=parse(t.trim().replace(/^[=v]+/,``),n);return r?r.version:null};module.exports=clean;

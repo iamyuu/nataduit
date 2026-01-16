@@ -1,0 +1,1 @@
+"use strict";const SemVer=require(`../classes/semver`),Range=require(`../classes/range`),minSatisfying=(n,r,i)=>{let a=null,o=null,s=null;try{s=new Range(r,i)}catch{return null}return n.forEach(t=>{s.test(t)&&(!a||o.compare(t)===1)&&(a=t,o=new SemVer(a,i))}),a};module.exports=minSatisfying;

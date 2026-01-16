@@ -1,0 +1,1 @@
+"use strict";const parse=require(`./parse`),valid=(t,n)=>{let r=parse(t,n);return r?r.version:null};module.exports=valid;
