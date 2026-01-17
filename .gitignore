@@ -1,13 +1,39 @@
-node_modules
+# macOS
 .DS_Store
-dist
-dist-ssr
-*.local
-count.txt
+.AppleDouble
+.LSOverride
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Dependency directories
+node_modules
+
+# dotenv environment variable files
 .env
+*.local
+
+# Build files and caches
+.vinxi
 .nitro
+.output
 .tanstack
 .wrangler
-.output
-.vinxi
-todos.json
+dist
+dist-ssr
