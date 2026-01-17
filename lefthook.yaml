@@ -1,0 +1,16 @@
+fmt:
+  parallel: true
+  jobs:
+    - run: pnpm oxlint src/**/*.{jsx,ts,tsx} --type-aware --fix --ignore-path .gitignore
+    - run: pnpm oxfmt src/**/*.{jsx,ts,tsx,json} --write --ignore-path .gitignore
+
+pre-commit:
+  parallel: true
+  jobs:
+    - run: pnpm oxlint {staged_files} --type-aware --fix --ignore-path .gitignore --deny-warnings --max-warnings 0 --report-unused-disable-directives
+      glob: "**/*.{jsx,ts,tsx}"
+      stage_fixed: true
+
+    - run: pnpm oxfmt {staged_files} --write --ignore-path .gitignore
+      glob: "**/*.{jsx,ts,tsx,json}"
+      stage_fixed: true
