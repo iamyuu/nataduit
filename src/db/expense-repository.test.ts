@@ -179,4 +179,28 @@ describe("ExpenseRepository", () => {
       "second",
     ])
   })
+
+  it("rejects a corrupted row (invalid category) when reading by date", async () => {
+    await db.expenses.add({
+      date: "2026-07-31",
+      category: "invalid",
+      description: "burger",
+      amount: 23000,
+      createdAt: Date.now(),
+    } as never)
+
+    await expect(repository.listByDate("2026-07-31")).rejects.toThrow()
+  })
+
+  it("rejects a corrupted row (invalid category) when reading by month", async () => {
+    await db.expenses.add({
+      date: "2026-07-31",
+      category: "invalid",
+      description: "burger",
+      amount: 23000,
+      createdAt: Date.now(),
+    } as never)
+
+    await expect(repository.listByMonth("2026-07")).rejects.toThrow()
+  })
 })

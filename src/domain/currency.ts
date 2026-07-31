@@ -1,3 +1,5 @@
+import { z } from "zod"
+
 export const CURRENCIES = [
   { code: "USD", symbol: "$", locale: "en-US" },
   { code: "JPY", symbol: "¥", locale: "ja-JP" },
@@ -5,6 +7,13 @@ export const CURRENCIES = [
   { code: "GBP", symbol: "£", locale: "en-GB" },
   { code: "IDR", symbol: "Rp", locale: "id-ID" },
 ] as const
+
+export const currencyCodeSchema = z.enum(
+  CURRENCIES.map((currency) => currency.code) as [
+    CurrencyCode,
+    ...CurrencyCode[],
+  ]
+)
 
 export type CurrencyCode = (typeof CURRENCIES)[number]["code"]
 

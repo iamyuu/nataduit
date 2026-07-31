@@ -1,6 +1,9 @@
 import * as React from "react"
+import { z } from "zod"
 
-type Theme = "dark" | "light" | "system"
+const themeSchema = z.enum(["dark", "light", "system"])
+
+type Theme = z.infer<typeof themeSchema>
 type ResolvedTheme = "dark" | "light"
 
 type ThemeProviderProps = {
@@ -16,19 +19,10 @@ type ThemeProviderState = {
 }
 
 const COLOR_SCHEME_QUERY = "(prefers-color-scheme: dark)"
-const THEME_VALUES: Theme[] = ["dark", "light", "system"]
 
 const ThemeProviderContext = React.createContext<
   ThemeProviderState | undefined
 >(undefined)
-
-function isTheme(value: string | null): value is Theme {
-  if (value === null) {
-    return false
-  }
-
-  return THEME_VALUES.includes(value as Theme)
-}
 
 function getSystemTheme(): ResolvedTheme {
   if (window.matchMedia(COLOR_SCHEME_QUERY).matches) {
@@ -84,12 +78,8 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setThemeState] = React.useState<Theme>(() => {
-    const storedTheme = localStorage.getItem(storageKey)
-    if (isTheme(storedTheme)) {
-      return storedTheme
-    }
-
-    return defaultTheme
+    const storedTheme = themeSchema.safeParse(localStorage.getItem(storageKey))
+    return storedTheme.success ? storedTheme.data : defaultTheme
   })
 
   const setTheme = React.useCallback(
@@ -188,12 +178,8 @@ export function ThemeProvider({
         return
       }
 
-      if (isTheme(event.newValue)) {
-        setThemeState(event.newValue)
-        return
-      }
-
-      setThemeState(defaultTheme)
+      const newTheme = themeSchema.safeParse(event.newValue)
+      setThemeState(newTheme.success ? newTheme.data : defaultTheme)
     }
 
     window.addEventListener("storage", handleStorageChange)

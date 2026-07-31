@@ -1,4 +1,8 @@
+import { z } from "zod"
+
 export const CATEGORIES = ["needs", "wants", "culture", "unexpected"] as const
+
+export const categorySchema = z.enum(CATEGORIES)
 
 export type Category = (typeof CATEGORIES)[number]
 

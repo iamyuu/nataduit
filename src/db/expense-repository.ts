@@ -1,5 +1,10 @@
 import { zeroCategoryTotals, type Category } from "@/domain/category"
-import { db, type Expense, type ExpenseDatabase } from "@/db/database"
+import {
+  db,
+  expenseSchema,
+  type Expense,
+  type ExpenseDatabase,
+} from "@/db/database"
 
 export type NewExpense = Omit<Expense, "id" | "createdAt">
 
@@ -20,9 +25,10 @@ export function createExpenseRepository(
       .where("date")
       .startsWith(yearMonth)
       .toArray()
-    return expenses.sort(
-      (a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt
-    )
+    return expenseSchema
+      .array()
+      .parse(expenses)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt)
   }
 
   return {
@@ -33,7 +39,11 @@ export function createExpenseRepository(
       await db.expenses.delete(id)
     },
     async listByDate(date) {
-      return db.expenses.where("date").equals(date).sortBy("createdAt")
+      const expenses = await db.expenses
+        .where("date")
+        .equals(date)
+        .sortBy("createdAt")
+      return expenseSchema.array().parse(expenses)
     },
     listByMonth,
     async dayTotals(yearMonth) {

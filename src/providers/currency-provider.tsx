@@ -1,5 +1,5 @@
 import * as React from "react"
-import { CURRENCIES, type CurrencyCode } from "@/domain/currency"
+import { currencyCodeSchema, type CurrencyCode } from "@/domain/currency"
 
 const STORAGE_KEY = "currency"
 const DEFAULT_CURRENCY: CurrencyCode = "USD"
@@ -13,22 +13,12 @@ const CurrencyProviderContext = React.createContext<
   CurrencyProviderState | undefined
 >(undefined)
 
-function isCurrencyCode(value: string | null): value is CurrencyCode {
-  if (value === null) {
-    return false
-  }
-
-  return CURRENCIES.some((currency) => currency.code === value)
-}
-
 export function CurrencyProvider(props: React.PropsWithChildren) {
   const [currency, setCurrencyState] = React.useState<CurrencyCode>(() => {
-    const storedCurrency = localStorage.getItem(STORAGE_KEY)
-    if (isCurrencyCode(storedCurrency)) {
-      return storedCurrency
-    }
-
-    return DEFAULT_CURRENCY
+    const storedCurrency = currencyCodeSchema.safeParse(
+      localStorage.getItem(STORAGE_KEY)
+    )
+    return storedCurrency.success ? storedCurrency.data : DEFAULT_CURRENCY
   })
 
   const setCurrency = React.useCallback((nextCurrency: CurrencyCode) => {

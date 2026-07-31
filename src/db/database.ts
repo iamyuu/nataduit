@@ -1,14 +1,17 @@
 import Dexie, { type EntityTable } from "dexie"
-import type { Category } from "@/domain/category"
+import { z } from "zod"
+import { categorySchema } from "@/domain/category"
 
-export interface Expense {
-  id: number
-  date: string
-  category: Category
-  description: string
-  amount: number
-  createdAt: number
-}
+export const expenseSchema = z.object({
+  id: z.number(),
+  date: z.string(),
+  category: categorySchema,
+  description: z.string(),
+  amount: z.number(),
+  createdAt: z.number(),
+})
+
+export type Expense = z.infer<typeof expenseSchema>
 
 export class ExpenseDatabase extends Dexie {
   expenses!: EntityTable<Expense, "id">
