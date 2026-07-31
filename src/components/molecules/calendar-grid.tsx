@@ -1,7 +1,12 @@
-import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react"
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  GearSixIcon,
+} from "@phosphor-icons/react"
 
-import { formatCurrency } from "@/domain/currency"
+import { formatCurrency, type CurrencyCode } from "@/domain/currency"
 import { formatDateKey, getCalendarWeekdayRows } from "@/domain/date"
+import { useCurrency } from "@/providers/currency-provider"
 import { cn } from "@/utils/misc"
 import { Button } from "@/components/atoms/button"
 
@@ -34,6 +39,7 @@ interface CalendarGridProps {
   onPrevMonth: () => void
   onNextMonth: () => void
   onSelectDay: (dateKey: string) => void
+  onOpenSettings: () => void
 }
 
 export function CalendarGrid({
@@ -44,7 +50,10 @@ export function CalendarGrid({
   onPrevMonth,
   onNextMonth,
   onSelectDay,
+  onOpenSettings,
 }: CalendarGridProps) {
+  const { currency } = useCurrency()
+
   const rows = getCalendarWeekdayRows(year, month)
   const monthLabel = new Date(year, month, 1)
     .toLocaleDateString(undefined, { month: "long" })
@@ -68,14 +77,24 @@ export function CalendarGrid({
           <CaretLeftIcon />
         </Button>
         <h1 className="text-lg font-bold tracking-wide">{monthLabel}</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onPress={onNextMonth}
-          aria-label="Next month"
-        >
-          <CaretRightIcon />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onPress={onOpenSettings}
+            aria-label="Currency settings"
+          >
+            <GearSixIcon />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onPress={onNextMonth}
+            aria-label="Next month"
+          >
+            <CaretRightIcon />
+          </Button>
+        </div>
       </div>
       <div className="flex flex-col gap-1">
         {rows.map((row, weekdayIndex) => (
@@ -98,6 +117,7 @@ export function CalendarGrid({
                     total={dayTotals.get(dateKey) ?? 0}
                     min={min}
                     max={max}
+                    currency={currency}
                     onSelect={() => onSelectDay(dateKey)}
                   />
                 )
@@ -117,6 +137,7 @@ interface DayCellProps {
   total: number
   min: number
   max: number
+  currency: CurrencyCode
   onSelect: () => void
 }
 
@@ -127,6 +148,7 @@ function DayCell({
   total,
   min,
   max,
+  currency,
   onSelect,
 }: DayCellProps) {
   if (!isCurrentMonth) {
@@ -162,7 +184,7 @@ function DayCell({
             bucket >= 4 ? "text-white" : "text-foreground"
           )}
         >
-          {formatCurrency(total)}
+          {formatCurrency(total, currency)}
         </span>
       ) : isToday ? (
         <span className="absolute inset-0 flex items-center justify-center">

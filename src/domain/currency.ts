@@ -6,11 +6,22 @@ export const CURRENCIES = [
   { code: "IDR", symbol: "Rp" },
 ] as const
 
-const currencyFormatter = new Intl.NumberFormat(undefined, {
-  style: "currency",
-  currency: "USD",
-})
+export type CurrencyCode = (typeof CURRENCIES)[number]["code"]
 
-export function formatCurrency(amount: number): string {
-  return currencyFormatter.format(amount)
+const formatters = new Map<CurrencyCode, Intl.NumberFormat>()
+
+export function formatCurrency(
+  amount: number,
+  currencyCode: CurrencyCode
+): string {
+  let formatter = formatters.get(currencyCode)
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: currencyCode,
+      currencyDisplay: "narrowSymbol",
+    })
+    formatters.set(currencyCode, formatter)
+  }
+  return formatter.format(amount)
 }

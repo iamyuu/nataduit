@@ -7,6 +7,7 @@ import {
   type ParseError,
 } from "@/parsing/parse-expense-input"
 import { CalendarGrid } from "@/components/molecules/calendar-grid"
+import { CurrencySettingsSheet } from "@/components/molecules/currency-settings-sheet"
 import { DayDetailSheet } from "@/components/molecules/day-detail-sheet"
 import { FloatingInput } from "@/components/molecules/floating-input"
 
@@ -20,6 +21,7 @@ export function App() {
   )
   const [refreshToken, setRefreshToken] = React.useState(0)
   const [selectedDate, setSelectedDate] = React.useState<string>()
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false)
 
   const yearMonth = formatYearMonth(viewedMonth.year, viewedMonth.month)
 
@@ -70,12 +72,17 @@ export function App() {
         onPrevMonth={goToPreviousMonth}
         onNextMonth={goToNextMonth}
         onSelectDay={setSelectedDate}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
       {selectedDate === undefined && <FloatingInput onSubmit={handleSubmit} />}
       <DayDetailSheet
         dateKey={selectedDate}
         onClose={() => setSelectedDate(undefined)}
         onExpenseDeleted={bumpDayTotals}
+      />
+      <CurrencySettingsSheet
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   )

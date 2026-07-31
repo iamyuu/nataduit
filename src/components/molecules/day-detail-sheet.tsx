@@ -5,6 +5,7 @@ import { expenseRepository } from "@/db/expense-repository"
 import type { Expense } from "@/db/database"
 import { formatCurrency } from "@/domain/currency"
 import { parseDateKey } from "@/domain/date"
+import { useCurrency } from "@/providers/currency-provider"
 import { Button } from "@/components/atoms/button"
 import {
   Drawer,
@@ -24,6 +25,7 @@ export function DayDetailSheet({
   onClose,
   onExpenseDeleted,
 }: DayDetailSheetProps) {
+  const { currency } = useCurrency()
   const [expenses, setExpenses] = React.useState<Expense[]>([])
   const [refreshToken, setRefreshToken] = React.useState(0)
 
@@ -63,7 +65,7 @@ export function DayDetailSheet({
         <DrawerHeader>
           <DrawerTitle>{title}</DrawerTitle>
           <p className="text-sm text-muted-foreground">
-            {formatCurrency(total)} total
+            {formatCurrency(total, currency)} total
           </p>
         </DrawerHeader>
         <div className="flex flex-col overflow-y-auto px-4 pb-6">
@@ -87,7 +89,7 @@ export function DayDetailSheet({
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-sm font-medium">
-                    {formatCurrency(expense.amount)}
+                    {formatCurrency(expense.amount, currency)}
                   </span>
                   <Button
                     variant="ghost"
