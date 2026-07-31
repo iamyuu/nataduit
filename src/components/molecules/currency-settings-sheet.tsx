@@ -1,4 +1,4 @@
-import { CURRENCIES } from "@/domain/currency"
+import { CURRENCIES, type CurrencyCode } from "@/domain/currency"
 import { useCurrency } from "@/providers/currency-provider"
 import { cn } from "@/utils/misc"
 import {
@@ -27,26 +27,47 @@ export function CurrencySettingsSheet({
         </DrawerHeader>
         <div className="flex flex-col px-4 pb-6">
           {CURRENCIES.map((item) => (
-            <button
+            <CurrencyOption
               key={item.code}
-              type="button"
-              onClick={() => {
+              code={item.code}
+              symbol={item.symbol}
+              isActive={item.code === currency}
+              onSelect={() => {
                 setCurrency(item.code)
                 onClose()
               }}
-              className={cn(
-                "flex items-center justify-between border-b border-border py-3 text-left last:border-0",
-                item.code === currency && "text-primary"
-              )}
-            >
-              <span className="text-sm font-medium">{item.code}</span>
-              <span className="text-sm text-muted-foreground">
-                {item.symbol}
-              </span>
-            </button>
+            />
           ))}
         </div>
       </DrawerContent>
     </Drawer>
+  )
+}
+
+interface CurrencyOptionProps {
+  code: CurrencyCode
+  symbol: string
+  isActive: boolean
+  onSelect: () => void
+}
+
+function CurrencyOption({
+  code,
+  symbol,
+  isActive,
+  onSelect,
+}: CurrencyOptionProps) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "flex items-center justify-between border-b border-border py-3 text-left last:border-0",
+        isActive && "text-primary"
+      )}
+    >
+      <span className="text-sm font-medium">{code}</span>
+      <span className="text-sm text-muted-foreground">{symbol}</span>
+    </button>
   )
 }
