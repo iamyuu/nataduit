@@ -4,7 +4,7 @@ import {
   GearSixIcon,
 } from "@phosphor-icons/react"
 
-import { formatCurrency, type CurrencyCode } from "@/domain/currency"
+import { formatCompactCurrency, type CurrencyCode } from "@/domain/currency"
 import { formatDateKey, getCalendarWeekdayRows } from "@/domain/date"
 import { useCurrency } from "@/providers/currency-provider"
 import { cn } from "@/utils/misc"
@@ -184,7 +184,7 @@ function DayCell({
             bucket >= 4 ? "text-white" : "text-foreground"
           )}
         >
-          {formatCurrency(total, currency)}
+          {formatCompactCurrency(total, currency)}
         </span>
       ) : isToday ? (
         <span className="absolute inset-0 flex items-center justify-center">
