@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { expenseRepository } from "@/db/expense-repository"
+import { zeroCategoryTotals, type Category } from "@/domain/category"
 import { formatYearMonth, todayKey } from "@/domain/date"
 import {
   parseExpenseInput,
@@ -10,6 +11,7 @@ import { CalendarGrid } from "@/components/molecules/calendar-grid"
 import { CurrencySettingsSheet } from "@/components/molecules/currency-settings-sheet"
 import { DayDetailSheet } from "@/components/molecules/day-detail-sheet"
 import { FloatingInput } from "@/components/molecules/floating-input"
+import { PillarSummary } from "@/components/molecules/pillar-summary"
 
 export function App() {
   const [viewedMonth, setViewedMonth] = React.useState(() => {
@@ -19,6 +21,8 @@ export function App() {
   const [dayTotals, setDayTotals] = React.useState<Map<string, number>>(
     new Map()
   )
+  const [pillarTotals, setPillarTotals] =
+    React.useState<Record<Category, number>>(zeroCategoryTotals)
   const [refreshToken, setRefreshToken] = React.useState(0)
   const [selectedDate, setSelectedDate] = React.useState<string>()
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false)
@@ -27,15 +31,21 @@ export function App() {
 
   React.useEffect(() => {
     let cancelled = false
-    expenseRepository.dayTotals(yearMonth).then((totals) => {
-      if (!cancelled) setDayTotals(totals)
+    Promise.all([
+      expenseRepository.dayTotals(yearMonth),
+      expenseRepository.pillarTotals(yearMonth),
+    ]).then(([days, pillars]) => {
+      if (!cancelled) {
+        setDayTotals(days)
+        setPillarTotals(pillars)
+      }
     })
     return () => {
       cancelled = true
     }
   }, [yearMonth, refreshToken])
 
-  function bumpDayTotals() {
+  function bumpTotals() {
     setRefreshToken((token) => token + 1)
   }
 
@@ -58,7 +68,7 @@ export function App() {
     if (!result.ok) return result.error
 
     await expenseRepository.add({ date: todayKey(), ...result.value })
-    bumpDayTotals()
+    bumpTotals()
     return undefined
   }
 
@@ -74,11 +84,12 @@ export function App() {
         onSelectDay={setSelectedDate}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
+      <PillarSummary totals={pillarTotals} />
       {selectedDate === undefined && <FloatingInput onSubmit={handleSubmit} />}
       <DayDetailSheet
         dateKey={selectedDate}
         onClose={() => setSelectedDate(undefined)}
-        onExpenseDeleted={bumpDayTotals}
+        onExpenseDeleted={bumpTotals}
       />
       <CurrencySettingsSheet
         open={isSettingsOpen}

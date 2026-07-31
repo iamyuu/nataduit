@@ -1,4 +1,4 @@
-import { CATEGORIES, type Category } from "@/domain/category"
+import { zeroCategoryTotals, type Category } from "@/domain/category"
 import { db, type Expense, type ExpenseDatabase } from "@/db/database"
 
 export type NewExpense = Omit<Expense, "id" | "createdAt">
@@ -49,9 +49,7 @@ export function createExpenseRepository(
     },
     async pillarTotals(yearMonth) {
       const expenses = await listByMonth(yearMonth)
-      const totals = Object.fromEntries(
-        CATEGORIES.map((category) => [category, 0])
-      ) as Record<Category, number>
+      const totals = zeroCategoryTotals()
       for (const expense of expenses) {
         totals[expense.category] += expense.amount
       }

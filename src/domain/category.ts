@@ -10,3 +10,9 @@ export const CATEGORY_ALIASES: Record<Category, string[]> = {
   culture: ["culture"],
   unexpected: ["unexpected"],
 }
+
+export function zeroCategoryTotals(): Record<Category, number> {
+  return Object.fromEntries(
+    CATEGORIES.map((category) => [category, 0])
+  ) as Record<Category, number>
+}
