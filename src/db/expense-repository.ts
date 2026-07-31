@@ -1,5 +1,5 @@
 import { CATEGORIES, type Category } from "@/domain/category"
-import type { Expense, ExpenseDatabase } from "@/db/database"
+import { db, type Expense, type ExpenseDatabase } from "@/db/database"
 
 export type NewExpense = Omit<Expense, "id" | "createdAt">
 
@@ -59,3 +59,5 @@ export function createExpenseRepository(
     },
   }
 }
+
+export const expenseRepository = createExpenseRepository(db)
