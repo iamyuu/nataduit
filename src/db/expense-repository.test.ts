@@ -1,7 +1,10 @@
 import "fake-indexeddb/auto"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { ExpenseDatabase } from "@/db/database"
-import { createExpenseRepository, type ExpenseRepository } from "@/db/expense-repository"
+import {
+  createExpenseRepository,
+  type ExpenseRepository,
+} from "@/db/expense-repository"
 
 describe("ExpenseRepository", () => {
   let db: ExpenseDatabase
@@ -49,20 +52,58 @@ describe("ExpenseRepository", () => {
   })
 
   it("lists expenses for a month, excluding neighboring months", async () => {
-    await repository.add({ date: "2026-06-30", category: "wants", description: "june tail", amount: 10 })
-    await repository.add({ date: "2026-07-01", category: "needs", description: "july start", amount: 20 })
-    await repository.add({ date: "2026-07-31", category: "culture", description: "july end", amount: 30 })
-    await repository.add({ date: "2026-08-01", category: "wants", description: "august start", amount: 40 })
+    await repository.add({
+      date: "2026-06-30",
+      category: "wants",
+      description: "june tail",
+      amount: 10,
+    })
+    await repository.add({
+      date: "2026-07-01",
+      category: "needs",
+      description: "july start",
+      amount: 20,
+    })
+    await repository.add({
+      date: "2026-07-31",
+      category: "culture",
+      description: "july end",
+      amount: 30,
+    })
+    await repository.add({
+      date: "2026-08-01",
+      category: "wants",
+      description: "august start",
+      amount: 40,
+    })
 
     const expenses = await repository.listByMonth("2026-07")
 
-    expect(expenses.map((expense) => expense.description)).toEqual(["july start", "july end"])
+    expect(expenses.map((expense) => expense.description)).toEqual([
+      "july start",
+      "july end",
+    ])
   })
 
   it("sums same-day expenses into a per-day total for the month", async () => {
-    await repository.add({ date: "2026-07-09", category: "wants", description: "coffee", amount: 5 })
-    await repository.add({ date: "2026-07-09", category: "needs", description: "lunch", amount: 12 })
-    await repository.add({ date: "2026-07-11", category: "culture", description: "book", amount: 30 })
+    await repository.add({
+      date: "2026-07-09",
+      category: "wants",
+      description: "coffee",
+      amount: 5,
+    })
+    await repository.add({
+      date: "2026-07-09",
+      category: "needs",
+      description: "lunch",
+      amount: 12,
+    })
+    await repository.add({
+      date: "2026-07-11",
+      category: "culture",
+      description: "book",
+      amount: 30,
+    })
 
     const totals = await repository.dayTotals("2026-07")
 
@@ -70,7 +111,7 @@ describe("ExpenseRepository", () => {
       new Map([
         ["2026-07-09", 17],
         ["2026-07-11", 30],
-      ]),
+      ])
     )
   })
 
@@ -79,9 +120,24 @@ describe("ExpenseRepository", () => {
   })
 
   it("sums expenses per pillar for the month, including pillars with no spend", async () => {
-    await repository.add({ date: "2026-07-09", category: "wants", description: "coffee", amount: 5 })
-    await repository.add({ date: "2026-07-09", category: "wants", description: "burger", amount: 23 })
-    await repository.add({ date: "2026-07-11", category: "needs", description: "electricity", amount: 100 })
+    await repository.add({
+      date: "2026-07-09",
+      category: "wants",
+      description: "coffee",
+      amount: 5,
+    })
+    await repository.add({
+      date: "2026-07-09",
+      category: "wants",
+      description: "burger",
+      amount: 23,
+    })
+    await repository.add({
+      date: "2026-07-11",
+      category: "needs",
+      description: "electricity",
+      amount: 100,
+    })
 
     const totals = await repository.pillarTotals("2026-07")
 
@@ -103,11 +159,24 @@ describe("ExpenseRepository", () => {
   })
 
   it("orders same-day expenses by createdAt within a listByMonth result", async () => {
-    await repository.add({ date: "2026-07-09", category: "wants", description: "first", amount: 1 })
-    await repository.add({ date: "2026-07-09", category: "wants", description: "second", amount: 2 })
+    await repository.add({
+      date: "2026-07-09",
+      category: "wants",
+      description: "first",
+      amount: 1,
+    })
+    await repository.add({
+      date: "2026-07-09",
+      category: "wants",
+      description: "second",
+      amount: 2,
+    })
 
     const expenses = await repository.listByMonth("2026-07")
 
-    expect(expenses.map((expense) => expense.description)).toEqual(["first", "second"])
+    expect(expenses.map((expense) => expense.description)).toEqual([
+      "first",
+      "second",
+    ])
   })
 })

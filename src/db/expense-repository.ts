@@ -12,10 +12,17 @@ export interface ExpenseRepository {
   pillarTotals(yearMonth: string): Promise<Record<Category, number>>
 }
 
-export function createExpenseRepository(db: ExpenseDatabase): ExpenseRepository {
+export function createExpenseRepository(
+  db: ExpenseDatabase
+): ExpenseRepository {
   async function listByMonth(yearMonth: string) {
-    const expenses = await db.expenses.where("date").startsWith(yearMonth).toArray()
-    return expenses.sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt)
+    const expenses = await db.expenses
+      .where("date")
+      .startsWith(yearMonth)
+      .toArray()
+    return expenses.sort(
+      (a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt
+    )
   }
 
   return {
@@ -33,16 +40,18 @@ export function createExpenseRepository(db: ExpenseDatabase): ExpenseRepository 
       const expenses = await listByMonth(yearMonth)
       const totals = new Map<string, number>()
       for (const expense of expenses) {
-        totals.set(expense.date, (totals.get(expense.date) ?? 0) + expense.amount)
+        totals.set(
+          expense.date,
+          (totals.get(expense.date) ?? 0) + expense.amount
+        )
       }
       return totals
     },
     async pillarTotals(yearMonth) {
       const expenses = await listByMonth(yearMonth)
-      const totals = Object.fromEntries(CATEGORIES.map((category) => [category, 0])) as Record<
-        Category,
-        number
-      >
+      const totals = Object.fromEntries(
+        CATEGORIES.map((category) => [category, 0])
+      ) as Record<Category, number>
       for (const expense of expenses) {
         totals[expense.category] += expense.amount
       }
