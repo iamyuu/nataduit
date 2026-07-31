@@ -13,6 +13,11 @@ export function todayKey(): string {
   return formatDateKey(new Date())
 }
 
+export function parseDateKey(key: string): Date {
+  const [year, month, day] = key.split("-").map(Number)
+  return new Date(year, month - 1, day)
+}
+
 /** Returns 7 rows (Monday..Sunday), each spanning every week needed to cover the month. */
 export function getCalendarWeekdayRows(year: number, month: number): Date[][] {
   const firstOfMonth = new Date(year, month, 1)

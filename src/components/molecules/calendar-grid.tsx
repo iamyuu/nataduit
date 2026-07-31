@@ -33,6 +33,7 @@ interface CalendarGridProps {
   dayTotals: Map<string, number>
   onPrevMonth: () => void
   onNextMonth: () => void
+  onSelectDay: (dateKey: string) => void
 }
 
 export function CalendarGrid({
@@ -42,6 +43,7 @@ export function CalendarGrid({
   dayTotals,
   onPrevMonth,
   onNextMonth,
+  onSelectDay,
 }: CalendarGridProps) {
   const rows = getCalendarWeekdayRows(year, month)
   const monthLabel = new Date(year, month, 1)
@@ -96,6 +98,7 @@ export function CalendarGrid({
                     total={dayTotals.get(dateKey) ?? 0}
                     min={min}
                     max={max}
+                    onSelect={() => onSelectDay(dateKey)}
                   />
                 )
               })}
@@ -114,6 +117,7 @@ interface DayCellProps {
   total: number
   min: number
   max: number
+  onSelect: () => void
 }
 
 function DayCell({
@@ -123,6 +127,7 @@ function DayCell({
   total,
   min,
   max,
+  onSelect,
 }: DayCellProps) {
   if (!isCurrentMonth) {
     return (
@@ -134,7 +139,13 @@ function DayCell({
   const bucket = hasSpend ? heatmapBucket(total, min, max) : 0
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-label={date.toLocaleDateString(undefined, {
+        month: "long",
+        day: "numeric",
+      })}
       className={cn(
         "relative aspect-square flex-1 rounded-md border border-border",
         hasSpend && BUCKET_BACKGROUND[bucket - 1],
@@ -158,6 +169,6 @@ function DayCell({
           <span className="size-1.5 rounded-full bg-primary" />
         </span>
       ) : null}
-    </div>
+    </button>
   )
 }
