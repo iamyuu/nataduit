@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseExpenseInput } from "@/parsing/parse-expense-input"
+import { parseExpenseInput } from "@/utils/parse-expense-input"
 
 describe("parseExpenseInput", () => {
   it("defaults to wants and applies the k suffix when no category is given", () => {

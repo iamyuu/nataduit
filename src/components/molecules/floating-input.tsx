@@ -1,7 +1,7 @@
 import * as React from "react"
 import { ArrowUpIcon } from "@phosphor-icons/react"
 
-import type { ParseError } from "@/parsing/parse-expense-input"
+import type { ParseError } from "@/utils/parse-expense-input"
 import {
   InputGroup,
   InputGroupAddon,

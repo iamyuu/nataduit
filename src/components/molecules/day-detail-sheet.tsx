@@ -1,12 +1,11 @@
 import * as React from "react"
-import { TrashIcon } from "@phosphor-icons/react"
 
 import { expenseRepository } from "@/db/expense-repository"
 import type { Expense } from "@/db/database"
 import { formatCurrency } from "@/domain/currency"
 import { parseDateKey } from "@/domain/date"
 import { useCurrency } from "@/providers/currency-provider"
-import { Button } from "@/components/atoms/button"
+import { DeleteButton } from "@/components/atoms/delete-button"
 import {
   Drawer,
   DrawerContent,
@@ -91,14 +90,10 @@ export function DayDetailSheet({
                   <span className="text-sm font-medium">
                     {formatCurrency(expense.amount, currency)}
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onPress={() => handleDelete(expense.id)}
-                    aria-label={`Delete ${expense.description}`}
-                  >
-                    <TrashIcon />
-                  </Button>
+                  <DeleteButton
+                    label={expense.description}
+                    onConfirm={() => handleDelete(expense.id)}
+                  />
                 </div>
               </div>
             ))

@@ -3,10 +3,7 @@ import * as React from "react"
 import { expenseRepository } from "@/db/expense-repository"
 import { zeroCategoryTotals, type Category } from "@/domain/category"
 import { formatYearMonth, todayKey } from "@/domain/date"
-import {
-  parseExpenseInput,
-  type ParseError,
-} from "@/parsing/parse-expense-input"
+import { parseExpenseInput, type ParseError } from "@/utils/parse-expense-input"
 import { CalendarGrid } from "@/components/molecules/calendar-grid"
 import { CurrencySettingsSheet } from "@/components/molecules/currency-settings-sheet"
 import { DayDetailSheet } from "@/components/molecules/day-detail-sheet"
