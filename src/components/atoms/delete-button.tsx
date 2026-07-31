@@ -15,11 +15,11 @@ import {
 import { Button } from "@/components/atoms/button"
 
 interface DeleteButtonProps {
-  label: string
+  children: string
   onConfirm: () => void
 }
 
-export function DeleteButton({ label, onConfirm }: DeleteButtonProps) {
+export function DeleteButton({ children, onConfirm }: DeleteButtonProps) {
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false)
 
   return (
@@ -28,7 +28,7 @@ export function DeleteButton({ label, onConfirm }: DeleteButtonProps) {
         variant="ghost"
         size="icon-sm"
         onPress={() => setIsConfirmOpen(true)}
-        aria-label={`Delete ${label}`}
+        aria-label={`Delete ${children}`}
       >
         <TrashIcon />
       </Button>
@@ -37,7 +37,7 @@ export function DeleteButton({ label, onConfirm }: DeleteButtonProps) {
         onOpenChange={setIsConfirmOpen}
       >
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete &quot;{label}&quot;?</AlertDialogTitle>
+          <AlertDialogTitle>Delete &quot;{children}&quot;?</AlertDialogTitle>
           <AlertDialogDescription>
             This can&apos;t be undone.
           </AlertDialogDescription>

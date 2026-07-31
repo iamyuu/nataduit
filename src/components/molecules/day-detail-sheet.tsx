@@ -90,10 +90,9 @@ export function DayDetailSheet({
                   <span className="text-sm font-medium">
                     {formatCurrency(expense.amount, currency)}
                   </span>
-                  <DeleteButton
-                    label={expense.description}
-                    onConfirm={() => handleDelete(expense.id)}
-                  />
+                  <DeleteButton onConfirm={() => handleDelete(expense.id)}>
+                    {expense.description}
+                  </DeleteButton>
                 </div>
               </div>
             ))
