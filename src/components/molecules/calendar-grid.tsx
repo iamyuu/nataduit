@@ -56,7 +56,7 @@ export function CalendarGrid({
 
   const rows = getCalendarWeekdayRows(year, month)
   const monthLabel = new Date(year, month, 1)
-    .toLocaleDateString(undefined, { month: "long" })
+    .toLocaleDateString(undefined, { month: "short", year: "numeric" })
     .toUpperCase()
 
   const spendingDays = Array.from(dayTotals.values()).filter(
@@ -67,7 +67,7 @@ export function CalendarGrid({
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between px-1 py-3">
+      <div className="flex items-center gap-1 px-1 py-3">
         <Button
           variant="ghost"
           size="icon"
@@ -77,24 +77,23 @@ export function CalendarGrid({
           <CaretLeftIcon />
         </Button>
         <h1 className="text-lg font-bold tracking-wide">{monthLabel}</h1>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onPress={onOpenSettings}
-            aria-label="Currency settings"
-          >
-            <GearSixIcon />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onPress={onNextMonth}
-            aria-label="Next month"
-          >
-            <CaretRightIcon />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onPress={onNextMonth}
+          aria-label="Next month"
+        >
+          <CaretRightIcon />
+        </Button>
+        <div className="flex-1" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onPress={onOpenSettings}
+          aria-label="Currency settings"
+        >
+          <GearSixIcon />
+        </Button>
       </div>
       <div className="flex flex-col gap-1">
         {rows.map((row, weekdayIndex) => (
