@@ -9,7 +9,9 @@
     "lint": "oxlint . --type-aware --fix --ignore-path .gitignore --deny-warnings --max-warnings 0 --report-unused-disable-directives",
     "format": "oxfmt --write \"**/*.{ts,tsx}\" --ignore-path .gitignore",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@fontsource-variable/geist-mono": "^5.3.0",
@@ -33,7 +35,8 @@
     "oxlint": "^1.75",
     "oxlint-tsgolint": "^7.0",
     "typescript": "~7",
-    "vite": "^8"
+    "vite": "^8",
+    "vitest": "^4.1.10"
   },
   "devEngines": {
     "packageManager": {
