@@ -137,9 +137,11 @@ export function ExpenseInputForm({
           <div
             ref={backdropRef}
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 overflow-hidden px-2.5 py-1 text-base whitespace-pre md:text-sm"
+            className="pointer-events-none absolute inset-0 flex items-center overflow-hidden px-2.5 py-1"
           >
-            {renderHighlightedValue(value, highlights)}
+            <span className="text-base whitespace-pre md:text-sm">
+              {renderHighlightedValue(value, highlights)}
+            </span>
           </div>
           <InputGroupInput
             ref={inputRef}
