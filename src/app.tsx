@@ -9,6 +9,7 @@ import { CurrencySettingsSheet } from "@/components/molecules/currency-settings-
 import { DayDetailSheet } from "@/components/molecules/day-detail-sheet"
 import { FloatingInput } from "@/components/molecules/floating-input"
 import { PillarSummary } from "@/components/molecules/pillar-summary"
+import { PwaNotifications } from "@/components/molecules/pwa-notifications"
 
 export function App() {
   const [viewedMonth, setViewedMonth] = React.useState(() => {
@@ -92,6 +93,7 @@ export function App() {
         open={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
+      <PwaNotifications />
     </div>
   )
 }

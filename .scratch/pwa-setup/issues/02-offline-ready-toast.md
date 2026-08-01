@@ -4,8 +4,8 @@
 
 **Blocked by:** 01 (Installable, offline-capable app shell)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `sonner` added via `pnpm dlx shadcn add sonner`, `<Toaster />` mounted once, themed to match the existing dark palette
-- [ ] `useRegisterSW`'s `offlineReady` flag triggers exactly one toast, once, on first successful precache
-- [ ] Verified against a production build + preview (not the dev server)
+- [x] `sonner` added via `pnpm dlx shadcn add sonner`, `<Toaster />` mounted once, themed to match the existing dark palette
+- [x] `useRegisterSW`'s `offlineReady` flag triggers exactly one toast, once, on first successful precache
+- [x] Verified against a production build + preview (not the dev server)
