@@ -74,9 +74,10 @@ interface ExpenseInputFormProps {
   onSubmit: (raw: string) => Promise<ParseError | undefined>
   placeholder?: string
   className?: string
-  /** Starts compact and grows on focus, shrinking back on blur-while-empty
-   * or successful submit. Off by default for inputs that already live
-   * inside their own focused context (e.g. an open drawer). */
+  /** Starts at 75% width, growing to 100% on focus and shrinking back on
+   * blur-while-empty or successful submit. Height stays fixed throughout.
+   * Off by default for inputs that already live inside their own focused
+   * context (e.g. an open drawer). */
   expandOnFocus?: boolean
 }
 
@@ -119,9 +120,6 @@ export function ExpenseInputForm({
     if (expandOnFocus) setIsExpanded(false)
   }
 
-  const isVisuallyExpanded = expandOnFocus && isExpanded
-  const expandedTextClass = isVisuallyExpanded && "text-lg md:text-base"
-
   return (
     <form onSubmit={handleSubmit} className={className}>
       {error && (
@@ -131,18 +129,15 @@ export function ExpenseInputForm({
       )}
       <InputGroup
         className={cn(
-          "bg-background shadow-lg transition-[height] duration-150",
-          isVisuallyExpanded ? "h-14" : "h-10"
+          "mx-auto h-10 bg-background shadow-lg transition-[width] duration-150",
+          expandOnFocus && !isExpanded ? "w-3/4" : "w-full"
         )}
       >
         <div className="relative h-full flex-1">
           <div
             ref={backdropRef}
             aria-hidden="true"
-            className={cn(
-              "pointer-events-none absolute inset-0 overflow-hidden px-2.5 py-1 text-base whitespace-pre md:text-sm",
-              expandedTextClass
-            )}
+            className="pointer-events-none absolute inset-0 overflow-hidden px-2.5 py-1 text-base whitespace-pre md:text-sm"
           >
             {renderHighlightedValue(value, highlights)}
           </div>
@@ -158,10 +153,7 @@ export function ExpenseInputForm({
             onBlur={() => expandOnFocus && value === "" && setIsExpanded(false)}
             placeholder={placeholder}
             aria-label="Add an expense"
-            className={cn(
-              "absolute inset-0 h-full w-full text-transparent caret-foreground selection:bg-primary/30",
-              expandedTextClass
-            )}
+            className="absolute inset-0 h-full w-full text-transparent caret-foreground selection:bg-primary/30"
           />
         </div>
         <InputGroupAddon align="inline-end">
