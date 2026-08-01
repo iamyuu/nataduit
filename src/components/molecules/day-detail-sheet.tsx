@@ -5,6 +5,8 @@ import type { Expense } from "@/db/database"
 import { formatCurrency, type CurrencyCode } from "@/domain/currency"
 import { parseDateKey } from "@/domain/date"
 import { useCurrency } from "@/providers/currency-provider"
+import { useDateOrder } from "@/providers/date-order-provider"
+import { parseExpenseInput, type ParseError } from "@/utils/parse-expense-input"
 import { DeleteButton } from "@/components/atoms/delete-button"
 import {
   Drawer,
@@ -12,19 +14,21 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/atoms/drawer"
+import { ExpenseInputForm } from "@/components/molecules/expense-input-form"
 
 interface DayDetailSheetProps {
   dateKey: string | undefined
   onClose: () => void
-  onExpenseDeleted: () => void
+  onExpensesChanged: (entryDate?: string) => void
 }
 
 export function DayDetailSheet({
   dateKey,
   onClose,
-  onExpenseDeleted,
+  onExpensesChanged,
 }: DayDetailSheetProps) {
   const { currency } = useCurrency()
+  const { dateOrder } = useDateOrder()
   const [expenses, setExpenses] = React.useState<Expense[]>([])
   const [refreshToken, setRefreshToken] = React.useState(0)
 
@@ -40,10 +44,23 @@ export function DayDetailSheet({
     }
   }, [dateKey, refreshToken])
 
+  async function handleAdd(raw: string): Promise<ParseError | undefined> {
+    if (!dateKey) return undefined
+
+    const result = parseExpenseInput(raw, { dateOrder })
+    if (!result.ok) return result.error
+
+    const date = result.value.date ?? dateKey
+    await expenseRepository.add({ ...result.value, date })
+    setRefreshToken((token) => token + 1)
+    onExpensesChanged(date)
+    return undefined
+  }
+
   async function handleDelete(id: number) {
     await expenseRepository.remove(id)
     setRefreshToken((token) => token + 1)
-    onExpenseDeleted()
+    onExpensesChanged()
   }
 
   const total = expenses.reduce((sum, expense) => sum + expense.amount, 0)
@@ -67,6 +84,11 @@ export function DayDetailSheet({
             {formatCurrency(total, currency)} total
           </p>
         </DrawerHeader>
+        {dateKey && (
+          <div className="px-4 pb-4">
+            <ExpenseInputForm onSubmit={handleAdd} />
+          </div>
+        )}
         <div className="flex flex-col overflow-y-auto px-4 pb-6">
           {expenses.length === 0 ? (
             <EmptyExpenseList />

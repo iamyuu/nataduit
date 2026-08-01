@@ -2,14 +2,15 @@ import * as React from "react"
 
 import { expenseRepository } from "@/db/expense-repository"
 import { zeroCategoryTotals, type Category } from "@/domain/category"
-import { formatYearMonth, todayKey } from "@/domain/date"
+import { formatYearMonth, parseDateKey, todayKey } from "@/domain/date"
 import { parseExpenseInput, type ParseError } from "@/utils/parse-expense-input"
+import { useDateOrder } from "@/providers/date-order-provider"
 import { CalendarGrid } from "@/components/molecules/calendar-grid"
-import { CurrencySettingsSheet } from "@/components/molecules/currency-settings-sheet"
 import { DayDetailSheet } from "@/components/molecules/day-detail-sheet"
 import { FloatingInput } from "@/components/molecules/floating-input"
 import { PillarSummary } from "@/components/molecules/pillar-summary"
 import { PwaNotifications } from "@/components/molecules/pwa-notifications"
+import { SettingsSheet } from "@/components/molecules/settings-sheet"
 
 export function App() {
   const [viewedMonth, setViewedMonth] = React.useState(() => {
@@ -24,6 +25,7 @@ export function App() {
   const [refreshToken, setRefreshToken] = React.useState(0)
   const [selectedDate, setSelectedDate] = React.useState<string>()
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false)
+  const { dateOrder } = useDateOrder()
 
   const yearMonth = formatYearMonth(viewedMonth.year, viewedMonth.month)
 
@@ -43,8 +45,16 @@ export function App() {
     }
   }, [yearMonth, refreshToken])
 
-  function bumpTotals() {
+  function bumpTotals(entryDate?: string) {
     setRefreshToken((token) => token + 1)
+
+    if (entryDate) {
+      const parsedEntryDate = parseDateKey(entryDate)
+      setViewedMonth({
+        year: parsedEntryDate.getFullYear(),
+        month: parsedEntryDate.getMonth(),
+      })
+    }
   }
 
   function goToPreviousMonth() {
@@ -61,12 +71,19 @@ export function App() {
     })
   }
 
+  function goToCurrentMonth() {
+    const now = new Date()
+    setViewedMonth({ year: now.getFullYear(), month: now.getMonth() })
+  }
+
   async function handleSubmit(raw: string): Promise<ParseError | undefined> {
-    const result = parseExpenseInput(raw)
+    const result = parseExpenseInput(raw, { dateOrder })
     if (!result.ok) return result.error
 
-    await expenseRepository.add({ date: todayKey(), ...result.value })
-    bumpTotals()
+    const date = result.value.date ?? todayKey()
+    await expenseRepository.add({ date, ...result.value })
+    bumpTotals(result.value.date)
+
     return undefined
   }
 
@@ -79,6 +96,7 @@ export function App() {
         dayTotals={dayTotals}
         onPrevMonth={goToPreviousMonth}
         onNextMonth={goToNextMonth}
+        onJumpToday={goToCurrentMonth}
         onSelectDay={setSelectedDate}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
@@ -87,9 +105,9 @@ export function App() {
       <DayDetailSheet
         dateKey={selectedDate}
         onClose={() => setSelectedDate(undefined)}
-        onExpenseDeleted={bumpTotals}
+        onExpensesChanged={bumpTotals}
       />
-      <CurrencySettingsSheet
+      <SettingsSheet
         open={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />

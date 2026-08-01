@@ -5,7 +5,11 @@ import {
 } from "@phosphor-icons/react"
 
 import { formatCompactCurrency, type CurrencyCode } from "@/domain/currency"
-import { formatDateKey, getCalendarWeekdayRows } from "@/domain/date"
+import {
+  formatDateKey,
+  getCalendarWeekdayRows,
+  parseDateKey,
+} from "@/domain/date"
 import { useCurrency } from "@/providers/currency-provider"
 import { cn } from "@/utils/misc"
 import { Button } from "@/components/atoms/button"
@@ -38,6 +42,7 @@ interface CalendarGridProps {
   dayTotals: Map<string, number>
   onPrevMonth: () => void
   onNextMonth: () => void
+  onJumpToday: () => void
   onSelectDay: (dateKey: string) => void
   onOpenSettings: () => void
 }
@@ -49,6 +54,7 @@ export function CalendarGrid({
   dayTotals,
   onPrevMonth,
   onNextMonth,
+  onJumpToday,
   onSelectDay,
   onOpenSettings,
 }: CalendarGridProps) {
@@ -59,6 +65,10 @@ export function CalendarGrid({
     .toLocaleDateString(undefined, { month: "short", year: "numeric" })
     .toUpperCase()
 
+  const today = parseDateKey(todayKey)
+  const isViewingCurrentMonth =
+    year === today.getFullYear() && month === today.getMonth()
+
   const spendingDays = Array.from(dayTotals.values()).filter(
     (total) => total > 0
   )
@@ -68,6 +78,16 @@ export function CalendarGrid({
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-1 px-1 py-3">
+        {!isViewingCurrentMonth && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onPress={onJumpToday}
+            aria-label="Jump to current month"
+          >
+            Today
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="icon"
@@ -90,7 +110,7 @@ export function CalendarGrid({
           variant="ghost"
           size="icon"
           onPress={onOpenSettings}
-          aria-label="Currency settings"
+          aria-label="Settings"
         >
           <GearSixIcon />
         </Button>
@@ -113,6 +133,7 @@ export function CalendarGrid({
                     date={date}
                     isCurrentMonth={date.getMonth() === month}
                     isToday={dateKey === todayKey}
+                    isFuture={date.getTime() > today.getTime()}
                     total={dayTotals.get(dateKey) ?? 0}
                     min={min}
                     max={max}
@@ -133,6 +154,7 @@ interface DayCellProps {
   date: Date
   isCurrentMonth: boolean
   isToday: boolean
+  isFuture: boolean
   total: number
   min: number
   max: number
@@ -144,6 +166,7 @@ function DayCell({
   date,
   isCurrentMonth,
   isToday,
+  isFuture,
   total,
   min,
   max,
@@ -163,6 +186,7 @@ function DayCell({
     <button
       type="button"
       onClick={onSelect}
+      disabled={isFuture}
       aria-label={date.toLocaleDateString(undefined, {
         month: "long",
         day: "numeric",
@@ -170,7 +194,8 @@ function DayCell({
       className={cn(
         "relative aspect-square flex-1 rounded-md border border-border",
         hasSpend && BUCKET_BACKGROUND[bucket - 1],
-        isToday && "ring-1 ring-primary"
+        isToday && "ring-1 ring-primary",
+        isFuture && "opacity-40"
       )}
     >
       <span className="absolute top-1 left-1 text-[10px] text-muted-foreground">
