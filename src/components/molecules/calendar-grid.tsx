@@ -78,16 +78,6 @@ export function CalendarGrid({
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-1 px-1 py-3">
-        {!isViewingCurrentMonth && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onPress={onJumpToday}
-            aria-label="Jump to current month"
-          >
-            Today
-          </Button>
-        )}
         <Button
           variant="ghost"
           size="icon"
@@ -105,6 +95,16 @@ export function CalendarGrid({
         >
           <CaretRightIcon />
         </Button>
+        {!isViewingCurrentMonth && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onPress={onJumpToday}
+            aria-label="Jump to current month"
+          >
+            Today
+          </Button>
+        )}
         <div className="flex-1" />
         <Button
           variant="ghost"
