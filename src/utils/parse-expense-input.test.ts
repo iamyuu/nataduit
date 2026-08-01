@@ -116,3 +116,156 @@ describe("parseExpenseInput", () => {
     })
   })
 })
+
+describe("parseExpenseInput backdating (at {{date}} clause)", () => {
+  // Fixed reference "today": August 15, 2026.
+  const today = new Date(2026, 7, 15)
+
+  it("resolves a day-month date with no year to this year, when that day already passed", () => {
+    expect(parseExpenseInput("burger 23k at 2 may", { today })).toEqual({
+      ok: true,
+      value: {
+        category: "wants",
+        description: "burger",
+        amount: 23000,
+        date: "2026-05-02",
+      },
+    })
+  })
+
+  it("resolves a day-month date with no year to last year, when that day hasn't happened yet this year", () => {
+    expect(parseExpenseInput("burger 23k at 31 dec", { today })).toEqual({
+      ok: true,
+      value: {
+        category: "wants",
+        description: "burger",
+        amount: 23000,
+        date: "2025-12-31",
+      },
+    })
+  })
+
+  it("treats the reference day itself as already past (not future)", () => {
+    expect(parseExpenseInput("burger 23k at 15 aug", { today })).toEqual({
+      ok: true,
+      value: {
+        category: "wants",
+        description: "burger",
+        amount: 23000,
+        date: "2026-08-15",
+      },
+    })
+  })
+
+  it("uses an explicit 4-digit year as given", () => {
+    expect(parseExpenseInput("burger 23k at 31 dec 2025", { today })).toEqual({
+      ok: true,
+      value: {
+        category: "wants",
+        description: "burger",
+        amount: 23000,
+        date: "2025-12-31",
+      },
+    })
+  })
+
+  it("accepts full month names, not just abbreviations", () => {
+    expect(parseExpenseInput("burger 23k at 2 august", { today })).toEqual({
+      ok: true,
+      value: {
+        category: "wants",
+        description: "burger",
+        amount: 23000,
+        date: "2026-08-02",
+      },
+    })
+  })
+
+  it("is case-insensitive for the at keyword and the month name", () => {
+    expect(parseExpenseInput("burger 23k AT 2 MAY", { today })).toEqual({
+      ok: true,
+      value: {
+        category: "wants",
+        description: "burger",
+        amount: 23000,
+        date: "2026-05-02",
+      },
+    })
+  })
+
+  it("reads month-day order when configured, instead of the default day-month", () => {
+    expect(
+      parseExpenseInput("burger 23k at may 2", {
+        today,
+        dateOrder: "month-day",
+      })
+    ).toEqual({
+      ok: true,
+      value: {
+        category: "wants",
+        description: "burger",
+        amount: 23000,
+        date: "2026-05-02",
+      },
+    })
+  })
+
+  it("keeps a leading category alias alongside a trailing date clause", () => {
+    expect(
+      parseExpenseInput("need groceries 100k at 2 may", { today })
+    ).toEqual({
+      ok: true,
+      value: {
+        category: "needs",
+        description: "groceries",
+        amount: 100000,
+        date: "2026-05-02",
+      },
+    })
+  })
+
+  it("rejects an explicit future date outright", () => {
+    expect(parseExpenseInput("burger 23k at 31 dec 2027", { today })).toEqual({
+      ok: false,
+      error: "future-date",
+    })
+  })
+
+  it("silently falls back to today for an unrecognized month name", () => {
+    expect(parseExpenseInput("burger 23k at 2 mayy", { today })).toEqual({
+      ok: true,
+      value: { category: "wants", description: "burger", amount: 23000 },
+    })
+  })
+
+  it("silently falls back to today for a day that doesn't exist in that month", () => {
+    expect(parseExpenseInput("burger 23k at 31 feb", { today })).toEqual({
+      ok: true,
+      value: { category: "wants", description: "burger", amount: 23000 },
+    })
+  })
+
+  it("silently falls back to today for a day out of the 1-31 range", () => {
+    expect(parseExpenseInput("burger 23k at 32 jan", { today })).toEqual({
+      ok: true,
+      value: { category: "wants", description: "burger", amount: 23000 },
+    })
+  })
+
+  it("treats 'at' in the middle of a description as ordinary text, not a date clause", () => {
+    expect(parseExpenseInput("dinner at restaurant 23k", { today })).toEqual({
+      ok: true,
+      value: {
+        category: "wants",
+        description: "dinner at restaurant",
+        amount: 23000,
+      },
+    })
+  })
+
+  it("has no date field when no at clause is given, preserving existing behavior", () => {
+    const result = parseExpenseInput("burger 23k", { today })
+    expect(result.ok).toBe(true)
+    expect(result.ok && "date" in result.value).toBe(false)
+  })
+})
