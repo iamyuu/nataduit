@@ -17,7 +17,7 @@ The date an expense is filed against on the calendar — defaults to today, or a
 _Avoid_: Log date, transaction date
 
 **Backdating**:
-Logging an expense against an entry date earlier than today, either via the floating input's trailing `at {{date}}` clause or the day-detail sheet's own add-expense input, whose entry date is implicitly the day it's opened for.
+Logging an expense against an entry date earlier than today, via the floating input's trailing `at {{date}}` clause. The day-detail sheet is read + delete only — it has no add-expense input of its own (see ADR-0003).
 _Avoid_: Retroactive entry, past-dating
 
 **Date-order preference**:
