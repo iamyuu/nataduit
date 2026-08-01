@@ -8,6 +8,7 @@
 @theme inline {
   --font-heading: var(--font-mono);
   --font-mono: "Geist Mono Variable", monospace;
+  --color-highlight-date: var(--highlight-date);
   --color-pillar-unexpected: var(--pillar-unexpected);
   --color-pillar-culture: var(--pillar-culture);
   --color-pillar-wants: var(--pillar-wants);
@@ -80,6 +81,7 @@
   --pillar-wants: oklch(0.696 0.17 162);
   --pillar-culture: oklch(0.65 0.18 310);
   --pillar-unexpected: oklch(0.75 0.15 70);
+  --highlight-date: oklch(0.75 0.14 200);
   --radius: 0.625rem;
   --sidebar: oklch(0.987 0.002 197.1);
   --sidebar-foreground: oklch(0.148 0.004 228.8);

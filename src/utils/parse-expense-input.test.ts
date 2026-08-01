@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { parseExpenseInput } from "@/utils/parse-expense-input"
+import {
+  getExpenseInputHighlights,
+  parseExpenseInput,
+} from "@/utils/parse-expense-input"
 
 describe("parseExpenseInput", () => {
   it("defaults to wants and applies the k suffix when no category is given", () => {
@@ -267,5 +270,107 @@ describe("parseExpenseInput backdating (at {{date}} clause)", () => {
     const result = parseExpenseInput("burger 23k", { today })
     expect(result.ok).toBe(true)
     expect(result.ok && "date" in result.value).toBe(false)
+  })
+})
+
+describe("getExpenseInputHighlights", () => {
+  // Fixed reference "today": August 15, 2026.
+  const today = new Date(2026, 7, 15)
+
+  function rangeOf(raw: string, substring: string) {
+    const start = raw.indexOf(substring)
+    return { start, end: start + substring.length }
+  }
+
+  it("highlights a leading category alias and the trailing amount", () => {
+    const raw = "need electricty 100k"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "need"), kind: "category", category: "needs" },
+      { ...rangeOf(raw, "100k"), kind: "amount" },
+    ])
+  })
+
+  it("highlights only the amount when no category alias is present", () => {
+    const raw = "burger 23k"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "23k"), kind: "amount" },
+    ])
+  })
+
+  it("highlights a category before an amount has been typed yet", () => {
+    const raw = "need lunch"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "need"), kind: "category", category: "needs" },
+    ])
+  })
+
+  it("highlights a valid past date clause (no year) as 'date'", () => {
+    const raw = "burger 23k at 2 may"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "23k"), kind: "amount" },
+      { ...rangeOf(raw, "at 2 may"), kind: "date" },
+    ])
+  })
+
+  it("highlights a valid past date clause with an explicit year as 'date'", () => {
+    const raw = "burger 23k at 31 dec 2025"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "23k"), kind: "amount" },
+      { ...rangeOf(raw, "at 31 dec 2025"), kind: "date" },
+    ])
+  })
+
+  it("highlights an explicit future date clause as 'date-future'", () => {
+    const raw = "burger 23k at 31 dec 2027"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "23k"), kind: "amount" },
+      { ...rangeOf(raw, "at 31 dec 2027"), kind: "date-future" },
+    ])
+  })
+
+  it("highlights a malformed but date-shaped clause the same as a valid one (silent fallback)", () => {
+    const raw = "burger 23k at 2 mayy"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "23k"), kind: "amount" },
+      { ...rangeOf(raw, "at 2 mayy"), kind: "date" },
+    ])
+  })
+
+  it("does not treat 'at' in the middle of a description as a date clause", () => {
+    const raw = "dinner at restaurant 23k"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "23k"), kind: "amount" },
+    ])
+  })
+
+  it("reads month-day order when configured, instead of the default day-month", () => {
+    const raw = "burger 23k at may 2"
+    expect(
+      getExpenseInputHighlights(raw, { today, dateOrder: "month-day" })
+    ).toEqual([
+      { ...rangeOf(raw, "23k"), kind: "amount" },
+      { ...rangeOf(raw, "at may 2"), kind: "date" },
+    ])
+  })
+
+  it("accounts for leading whitespace when reporting offsets", () => {
+    const raw = "  burger 23k"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "23k"), kind: "amount" },
+    ])
+  })
+
+  it("returns highlights sorted left-to-right when category, date, and amount are all present", () => {
+    const raw = "need groceries 100k at 2 may"
+    expect(getExpenseInputHighlights(raw, { today })).toEqual([
+      { ...rangeOf(raw, "need"), kind: "category", category: "needs" },
+      { ...rangeOf(raw, "100k"), kind: "amount" },
+      { ...rangeOf(raw, "at 2 may"), kind: "date" },
+    ])
+  })
+
+  it("returns no highlights for input with nothing recognizable", () => {
+    expect(getExpenseInputHighlights("burger", { today })).toEqual([])
+    expect(getExpenseInputHighlights("", { today })).toEqual([])
   })
 })
