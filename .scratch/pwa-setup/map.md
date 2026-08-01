@@ -1,6 +1,8 @@
 ## Destination
 
-A working, installable PWA for the NataDuit (Kakeibo) app: `vite-plugin-pwa` configured offline-first (precached app shell via Workbox `generateSW`), a manifest with real placeholder branding, a toast when the app becomes available offline, and a toast when a new version has updated in the background — set up to feel native, since the end goal is wrapping it as a TWA.
+**Reached.** A working, installable PWA for the NataDuit (Kakeibo) app: `vite-plugin-pwa` configured offline-first (precached app shell via Workbox `generateSW`), a manifest with real placeholder branding, a toast when the app becomes available offline, and a toast when a new version has updated in the background — set up to feel native, since the end goal is wrapping it as a TWA.
+
+This effort ended up routed through a spec (`.scratch/pwa-setup/spec.md`) and a `/to-tickets` breakdown (`.scratch/pwa-setup/issues/01-03`, local-ticket-template format) rather than resolved directly on this map's original 4 wayfinder-format tickets — those were superseded and removed when the spec landed. All 3 replacement tickets are done.
 
 ## Notes
 
@@ -20,6 +22,7 @@ A working, installable PWA for the NataDuit (Kakeibo) app: `vite-plugin-pwa` con
 - Toast system: shadcn `sonner`.
 - Update UX: `registerType: "autoUpdate"`; toast is informational only ("Updated to the latest version"), no reload-prompt — matches native/TWA update behavior.
 - Offline-ready toast fires once, on the `offlineReady` flag from `vite-plugin-pwa`'s `virtual:pwa-register/react` hook (first successful precache).
+- **Correction discovered during ticket 03**: in `autoUpdate` mode, `useRegisterSW()`'s `needRefresh` flag is never set (confirmed via the plugin's own source) — the plugin calls `onNeedReload()` instead, the instant the new SW activates, with no time to show a toast first. Implementation sets a `sessionStorage` flag then reloads; the toast shows on the next mount, deferred one macrotask past `<Toaster/>`'s subscribe effect (a real, verified timing bug, not a superstition workaround).
 
 ## Not yet specified
 
